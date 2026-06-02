@@ -1,29 +1,257 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Showcase</title>
+  <title>CLI Интеграции Триколор 2.4 — Презентация обновления</title>
+  
+  <!-- Tailwind CSS Play CDN & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="container">
-    <h1>ТРИКОЛОР — Update Showcase</h1>
-    <p>Упрощённая конвертация React/Vite проекта в обычные HTML/CSS/JS файлы.</p>
+<body class="bg-[#060608] text-gray-200 font-sans antialiased overflow-x-hidden min-h-screen relative select-none">
 
-    <section class="card">
-      <h2>Запуск проверки</h2>
-      <button id="launchBtn">Запустить</button>
-      <pre id="log"></pre>
-    </section>
-
-    <section class="card">
-      <h2>Голосование</h2>
-      <button id="upvote">👍 За</button>
-      <button id="downvote">👎 Против</button>
-      <p id="voteResult">Голосов пока нет</p>
-    </section>
+  <!-- Interactive Atmosphere Local Video Backing (x.mp4) -->
+  <div class="video-bg-container fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
+    <video id="bg-video-elem" autoplay loop playsinline class="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto -translate-x-[50%] -translate-y-[50%] object-cover opacity-80 transition-all duration-500">
+      <source src="x.mp4" type="video/mp4" />
+    </video>
+    <div class="absolute inset-0 bg-[#060608]/40 backdrop-blur-[1px]" style="z-index: 1;"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#060608] via-transparent to-[#060608]/50" style="z-index: 2;"></div>
   </div>
+
+  <!-- Particle Confetti Canvas -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-4xl mx-auto px-4 pt-10 sm:pt-14 pb-24 space-y-12">
+
+    <!-- INTRO HERO SCREEN -->
+    <section class="text-center space-y-6 max-w-3xl mx-auto animate-fade-in">
+      
+      <!-- Glowing Version Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-mono uppercase tracking-widest font-bold">
+        <svg class="w-3.5 h-3.5 text-blue-500 fill-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        <span>Триколор — СЛЕДУЮЩИЙ ЭТАП РАЗВИТИЯ ПЛАТФОРМЫ</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white leading-[1.08]">
+        CLI Интеграции <span class="bg-gradient-to-r from-blue-400 to-[#10b981] bg-clip-text text-transparent">Триколор 2.4</span>
+      </h1>
+
+      <p class="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-2xl mx-auto font-normal">
+        Новое обновление направлено на формирование единой безопасной экосистемы для пользователей, разработчиков и авторов проектов. Мы сделали платформу еще быстрее, безопаснее, удобнее и улучшили интеграции без усложнения интерфейса.
+      </p>
+
+      <!-- Integrated Player Controls Panel (Always unmuted initially) -->
+      <div class="inline-flex items-center gap-3 bg-zinc-950/65 p-2 px-3 border border-white/5 rounded-xl text-xs backdrop-blur-sm">
+        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+        <button id="btn-toggle-play" class="text-gray-300 hover:text-white transition-colors">
+          ⏸️ Пауза
+        </button>
+        <div class="h-4 w-[1px] bg-white/10"></div>
+        <button id="btn-toggle-mute" class="text-gray-300 hover:text-white transition-colors font-medium">
+          🔊 Звук включен
+        </button>
+      </div>
+
+      <!-- Quick Action Controls inside Hero -->
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <button id="btn-celebrate" class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-400/35 text-gray-200 text-xs transition-all flex items-center gap-2 cursor-pointer relative overflow-hidden font-mono">
+          <svg class="w-3.5 h-3.5 fill-current text-pink-500" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span>Активировать Радость</span>
+          <span id="joy-counter" class="hidden text-[9px] font-bold text-emerald-400 bg-emerald-950/40 px-1 rounded border border-emerald-500/20"></span>
+        </button>
+
+        <button id="btn-share" class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 hover:text-white transition-all cursor-pointer" title="Поделиться">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+        </button>
+
+        <button id="btn-scroll-down" class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-blue-400/35 text-gray-200 text-xs transition-all flex items-center gap-2 cursor-pointer font-mono" title="Посмотреть новые возможности">
+          <span>Перейти к фишкам</span>
+          <svg class="w-3.5 h-3.5 animate-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- CORE FEATURES DISPLAY GRID SECTION -->
+    <section class="bg-zinc-950/50 p-4 sm:p-5 rounded-xl border border-white/5">
+      <div class="w-full my-1" id="features-showcase-section">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+          <div>
+            <span class="text-xs font-mono font-bold uppercase tracking-widest text-[#3b82f6] bg-[#3b82f6]/10 px-3 py-1 rounded-full border border-blue-500/20">
+              ОБНОВЛЕНИЕ ТРИКОЛОР — ГЛАВНЫЕ ФИШКИ
+            </span>
+            <h2 class="text-lg sm:text-xl font-bold mt-2 text-white">
+              Что нового мы подготовили?
+            </h2>
+          </div>
+        </div>
+
+        <!-- 10 Responsive Feature Cards Grid -->
+        <div id="features-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          <!-- Dynamically Rendered by script.js -->
+        </div>
+
+        <!-- Dynamic Advanced Details Container -->
+        <div class="w-full mt-4 p-4 rounded-xl bg-zinc-950/40 border border-white/5 relative overflow-hidden">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <div class="md:col-span-3 space-y-2">
+              <h3 id="detail-title" class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                Инициализация...
+              </h3>
+              <p id="detail-desc" class="text-xs text-gray-300 leading-relaxed max-w-3xl">
+                Выберите любую фишку выше, чтобы подробно прочитать ее описание.
+              </p>
+            </div>
+            <div class="rounded-lg bg-black/30 p-3.5 border border-white/5 flex flex-col justify-center h-full text-center">
+              <div class="text-[9px] font-mono text-gray-400 uppercase tracking-widest mb-1">СТАТУС ИНТЕГРАЦИИ</div>
+              <span class="block text-sm font-bold text-emerald-400 tracking-tight font-mono">ГОТОВО К ВЫПУСКУ</span>
+              <span class="block text-[8px] text-gray-500 uppercase font-mono tracking-wider mt-1">Проверено сервером</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- DETAILED SAFE-ARCHITECTURE ROW -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-zinc-950/60 p-5 rounded-xl border border-white/5 space-y-3.5 text-left">
+        <h3 class="text-sm font-bold text-white tracking-wide uppercase flex items-center gap-2 border-b border-white/5 pb-2">
+          <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+          Комплексная архитектура безопасности
+        </h3>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          Мы провели тотальную переработку серверного бэкенда. Все внутренние API платформы теперь полностью изолированы от сторонних хостов. 
+        </p>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          Для пользовательского CLI выделен единственный жесткий эндпоинт <code class="text-blue-400 bg-blue-500/10 px-1 py-0.5 rounded font-mono text-[10px]">/api/cli</code> без поддержки свободных подмаршрутов, что гарантирует защиту от стороннего сканирования портов.
+        </p>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          Учетные данные, транзакции токенов и ключи хранятся с использованием криптографического хэширования. Все куки защищены флагами <code class="text-gray-300">Secure</code>, <code class="text-gray-300">HttpOnly</code>, и <code class="text-gray-300">SameSite=Strict</code>.
+        </p>
+      </div>
+
+      <div class="bg-zinc-950/60 p-5 rounded-xl border border-white/5 space-y-3.5 text-left">
+        <h3 class="text-sm font-bold text-white tracking-wide uppercase flex items-center gap-2 border-b border-white/5 pb-2">
+          <span class="w-1.5 h-1.5 bg-[#10b981] rounded-full"></span>
+          Живая Экосистема и Значки
+        </h3>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          <strong>Обмен значками:</strong> Логика передачи коллекционных предметов теперь полностью обрабатывается сервером. Любые транзитные действия требуют обоюдного согласия обеих сторон для исключения взломов или несанкционированных списаний.
+        </p>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          <strong>Мониторинг GameJolt RU:</strong> Интегрирован живой фоновый парсер аналитики. Просмотры, оценки и изменения статусов ваших проектов синхронизируются в реальном времени, обеспечивая полноценный рейтинг без необходимости ручного обновления.
+        </p>
+        <p class="text-[11.5px] text-gray-400 leading-relaxed">
+          <strong>Оптимизация:</strong> Отсутствие тяжелых шейдеров размытия позволило снизить графическую и процессорную нагрузку на 65%, увеличив скорость отклика интерфейса до рекордных 90 мс.
+        </p>
+      </div>
+    </section>
+
+    <!-- REAL DEMOCRATIC VOTING SECTION -->
+    <section class="bg-zinc-950/50 p-4 sm:p-5 rounded-xl border border-white/5">
+      <div class="w-full max-w-2xl mx-auto my-3" id="feedback-voting-section">
+        
+        <div class="text-center mb-6">
+          <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+            ОБЩЕСТВЕННОЕ ГОЛОСОВАНИЕ
+          </span>
+          <h2 class="text-lg sm:text-xl font-bold font-sans mt-2.5 text-white">
+            Поддерживаете ли вы новое готовое обновление?
+          </h2>
+          <p class="text-xs text-gray-400 mt-1 max-w-lg mx-auto">
+            Каждое решение влияет на будущие выпуски ТРИКОЛОР. Выберите ваш вариант ниже.
+          </p>
+        </div>
+
+        <!-- Voting panel card -->
+        <div class="rounded-xl bg-zinc-900/80 p-5 sm:p-6 border border-white/10 relative">
+          <div class="flex items-center justify-between text-[11px] font-mono text-gray-400 uppercase tracking-wider mb-5">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              <span>Участников: <span id="voter-total">0</span></span>
+            </span>
+            <span class="flex items-center gap-1.5 text-emerald-400">
+              <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+              Голосование Активно
+            </span>
+          </div>
+
+          <!-- Buttons grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- YES -->
+            <button id="btn-vote-up" class="group text-left relative flex items-center justify-between p-4 px-5 rounded-xl border transition-all cursor-pointer bg-black/25 border-white/10 hover:bg-white/5 hover:border-white/20 text-gray-300">
+              <div class="flex items-center gap-3">
+                <div class="vote-icon-box w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 transition-all">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M2 20h2v-8H2v8zm19.83-9.12l-2.33-4.66A2.16 2.16 0 0 0 17.5 5h-4.3l.63-3.15c.07-.34-.02-.69-.24-.96A1.69 1.69 0 0 0 12.3 0c-.3 0-.58.12-.79.33L6.17 5.67A1.69 1.69 0 0 0 5.5 6.87V18.5a1.5 1.5 0 0 0 1.5 1.5h9c1.07 0 2.05-.62 2.52-1.58l3.41-6.83c.27-.54.27-1.16-.1-1.71z"/></svg>
+                </div>
+                <div>
+                  <span class="block text-xs font-semibold">ЗА ОБНОВЛЕНИЕ</span>
+                  <span class="block text-[10px] text-gray-400 mt-0.5">Классный функционал</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span id="vote-up-percent" class="block font-sans font-bold text-base text-green-400">0%</span>
+                <span id="vote-up-count" class="block text-[10px] text-gray-500 font-mono">0 чел</span>
+              </div>
+            </button>
+
+            <!-- NO -->
+            <button id="btn-vote-down" class="group text-left relative flex items-center justify-between p-4 px-5 rounded-xl border transition-all cursor-pointer bg-black/25 border-white/10 hover:bg-white/5 hover:border-white/20 text-gray-300">
+              <div class="flex items-center gap-3">
+                <div class="vote-icon-box w-8 h-8 rounded-lg flex items-center justify-center bg-white/5 text-gray-400 transition-all">
+                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M22 4h-2v8h2V4zm-19.83 9.12l2.33 4.66c.26.5.76.84 1.33.84h4.3l-.63 3.15c-.07.34.02.69.24.96.22.27.55.43.89.43.3 0 .58-.12.79-.33l5.34-5.34c.3-.3.47-.7.47-1.2V5.5c0-.83-.67-1.5-1.5-1.5h-9c-1.07 0-2.05.62-2.52 1.58L2.1 12.41a1.98 1.98 0 0 0 .1 1.71z"/></svg>
+                </div>
+                <div>
+                  <span class="block text-xs font-semibold">ПРОТИВ ИЗМЕНЕНИЙ</span>
+                  <span class="block text-[10px] text-gray-400 mt-0.5">Требуется доработка</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span id="vote-down-percent" class="block font-sans font-bold text-base text-red-400">0%</span>
+                <span id="vote-down-count" class="block text-[10px] text-gray-500 font-mono">0 чел</span>
+              </div>
+            </button>
+
+          </div>
+
+          <!-- Stats comparison slide view -->
+          <div class="mt-6 pt-4 border-t border-white/5">
+            <div class="flex justify-between items-center text-xs font-mono text-gray-400 mb-2">
+              <span>Поддержали (<span id="progress-up-lbl">0%</span>)</span>
+              <span>Возразили (<span id="progress-down-lbl">0%</span>)</span>
+            </div>
+            <div class="w-full h-2 bg-black/60 rounded-full overflow-hidden flex">
+              <div id="progress-bar-up" class="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-700 ease-out" style="width: 0%;"></div>
+              <div id="progress-bar-down" class="h-full bg-gradient-to-r from-red-500 to-rose-600 transition-all duration-700 ease-out" style="width: 0%;"></div>
+            </div>
+            <div id="vote-status-desc" class="text-[10px] text-center text-gray-400 font-mono mt-3">
+              Выберите ваш ответ для фиксации мнения
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CUSTOM FLOATING TOAST WARNING -->
+  <div id="toast-view" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-xl bg-zinc-900/95 border border-blue-500/40 text-xs text-gray-200 p-3 px-5 shadow-2xl flex items-center gap-2 max-w-sm text-center opacity-0 pointer-events-none transition-all duration-300">
+    <div class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></div>
+    <span id="toast-text"></span>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
