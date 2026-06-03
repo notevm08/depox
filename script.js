@@ -152,9 +152,9 @@ if (videoEl) {
   
   // Try to play unmuted. If autoplay with audio is blocked, fallback to muted play.
   videoEl.play().catch(err => {
-    console.log("Autoplay unmuted blocked by browser. Retrying muted as safe fallback...");
-    videoEl.muted = true;
-    btnToggleMute.innerText = "🔇 Звук выключен";
+    videoEl.muted = false;
+    videoEl.volume = 1.0;
+    btnToggleMute.innerText = "🔊 Звук включен";
     videoEl.play().catch(e => console.log("Video fail to play: ", e));
   });
 }
